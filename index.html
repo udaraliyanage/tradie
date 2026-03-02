@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradiePad — Simple job management for NZ tradies</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&display=swap');
+
+  :root {
+    --orange: #f97316;
+    --orange-dark: #c2410c;
+    --ink: #111613;
+    --bg: #f8f6f1;
+    --cream: #fffdf8;
+    --border: #e5e0d5;
+    --muted: #7a7568;
+    --green: #16a34a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Bricolage Grotesque', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(248,246,241,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+
+  .logo span { color: var(--orange); }
+
+  .nav-cta {
+    background: var(--orange);
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.15s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .nav-cta:hover { background: var(--orange-dark); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 2rem 5rem;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #c2410c;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.35rem 0.9rem;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+    width: fit-content;
+    letter-spacing: 0.02em;
+    animation: slideUp 0.5s ease both;
+  }
+
+  .pulse {
+    width: 6px; height: 6px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(2.6rem, 7vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+    animation: slideUp 0.5s 0.1s ease both;
+  }
+
+  h1 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--orange);
+    font-weight: 400;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 540px;
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+    animation: slideUp 0.5s 0.2s ease both;
+  }
+
+  .hero-form {
+    display: flex;
+    gap: 0.6rem;
+    max-width: 480px;
+    animation: slideUp 0.5s 0.3s ease both;
+  }
+
+  @media(max-width: 480px) {
+    .hero-form { flex-direction: column; }
+  }
+
+  .email-input {
+    flex: 1;
+    padding: 0.85rem 1.1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.9rem;
+    background: white;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .email-input:focus { border-color: var(--orange); }
+
+  .submit-btn {
+    background: var(--orange);
+    color: white;
+    border: none;
+    padding: 0.85rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .submit-btn:hover { background: var(--orange-dark); transform: translateY(-1px); }
+  .submit-btn:active { transform: translateY(0); }
+
+  .hero-note {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.7rem;
+    animation: slideUp 0.5s 0.4s ease both;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    animation: slideUp 0.5s 0.5s ease both;
+    flex-wrap: wrap;
+  }
+
+  .hero-stat-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .hero-stat-val span { color: var(--orange); }
+
+  .hero-stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    max-width: 120px;
+    line-height: 1.4;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* PAIN POINTS */
+  .pain-section {
+    background: var(--ink);
+    color: white;
+    padding: 5rem 2rem;
+  }
+
+  .pain-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-eyebrow {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--orange);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .pain-title {
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 3rem;
+    max-width: 600px;
+  }
+
+  .pain-title em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--orange);
+    font-weight: 400;
+  }
+
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .pain-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 1.4rem;
+    transition: background 0.2s;
+  }
+
+  .pain-card:hover { background: rgba(255,255,255,0.07); }
+
+  .pain-icon { font-size: 1.5rem; margin-bottom: 0.8rem; }
+
+  .pain-card-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .pain-card-desc {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+  }
+
+  /* FEATURES */
+  .features-section {
+    padding: 6rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .features-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+
+  .features-title {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 0.8rem;
+  }
+
+  .features-sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.2rem;
+  }
+
+  .feature-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .feature-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+  .feature-icon-wrap {
+    width: 42px; height: 42px;
+    background: #fff7ed;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .feature-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* PRICING */
+  .pricing-section {
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 6rem 2rem;
+  }
+
+  .pricing-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .pricing-title {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.8rem;
+  }
+
+  .pricing-sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+  }
+
+  .pricing-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+
+  @media(max-width: 520px) { .pricing-cards { grid-template-columns: 1fr; } }
+
+  .pricing-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem 1.5rem;
+    text-align: left;
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+
+  .pricing-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+
+  .pricing-card.featured {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 4px rgba(249,115,22,0.08);
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--orange);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .plan-price {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .plan-price span { font-size: 1rem; font-weight: 400; color: var(--muted); }
+
+  .plan-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .plan-features li {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ink);
+  }
+
+  .check { color: var(--green); font-size: 0.8rem; }
+  .cross { color: #d1d5db; }
+
+  .plan-btn {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+  }
+
+  .plan-btn.free {
+    background: #f3f4f6;
+    color: var(--ink);
+  }
+
+  .plan-btn.free:hover { background: #e5e7eb; }
+
+  .plan-btn.pro {
+    background: var(--orange);
+    color: white;
+  }
+
+  .plan-btn.pro:hover { background: var(--orange-dark); }
+
+  /* SOCIAL PROOF */
+  .proof-section {
+    padding: 5rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .proof-title {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 2.5rem;
+  }
+
+  .testimonials {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.2rem;
+    text-align: left;
+  }
+
+  .testimonial {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+  }
+
+  .stars { color: var(--orange); font-size: 0.75rem; margin-bottom: 0.7rem; }
+
+  .testimonial-text {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: #374151;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .author-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .author-name { font-size: 0.75rem; font-weight: 700; }
+  .author-role { font-size: 0.62rem; color: var(--muted); }
+
+  /* FINAL CTA */
+  .final-cta {
+    background: var(--ink);
+    padding: 6rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .final-title {
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .final-title em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--orange);
+    font-weight: 400;
+  }
+
+  .final-sub {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.55);
+    max-width: 400px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    position: relative;
+  }
+
+  .final-form {
+    display: flex;
+    gap: 0.6rem;
+    max-width: 420px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  @media(max-width: 480px) { .final-form { flex-direction: column; } }
+
+  .final-email {
+    flex: 1;
+    padding: 0.9rem 1.1rem;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.07);
+    color: white;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .final-email::placeholder { color: rgba(255,255,255,0.3); }
+  .final-email:focus { border-color: var(--orange); }
+
+  .final-note {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 0.8rem;
+    position: relative;
+  }
+
+  /* footer */
+  footer {
+    background: #0a0c0f;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* Success state */
+  .success-msg {
+    display: none;
+    background: #f0fdf4;
+    border: 1.5px solid #86efac;
+    color: var(--green);
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.8rem;
+  }
+
+  .success-msg.show { display: block; animation: slideUp 0.3s ease; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Tradie<span>Pad</span></div>
+  <button class="nav-cta" onclick="document.getElementById('hero-email').focus()">Get early access</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <div class="pulse"></div>
+    Built for NZ sole-trader tradies
+  </div>
+  <h1>Stop losing money<br>to <em>paperwork chaos</em></h1>
+  <p class="hero-sub">
+    TradiePad turns your phone into a job management powerhouse. Quotes, invoices, GST tracking — done in seconds, straight from your ute.
+  </p>
+  <div class="hero-form">
+    <input type="email" id="hero-email" class="email-input" placeholder="your@email.co.nz">
+    <button class="submit-btn" onclick="handleSignup('hero')">Get early access →</button>
+  </div>
+  <div class="hero-note">🔒 Free to join. No credit card. NZ only.</div>
+  <div id="hero-success" class="success-msg">✓ You're on the list! We'll email you when we launch.</div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-val"><span>$9.90</span></div>
+      <div class="hero-stat-label">NZD/month for full access</div>
+    </div>
+    <div>
+      <div class="hero-stat-val">30<span>sec</span></div>
+      <div class="hero-stat-label">to send a professional quote</div>
+    </div>
+    <div>
+      <div class="hero-stat-val">NZ<span>GST</span></div>
+      <div class="hero-stat-label">built in, IRD-ready reports</div>
+    </div>
+  </div>
+</section>
+
+<!-- PAIN POINTS -->
+<section class="pain-section">
+  <div class="pain-inner">
+    <div class="section-eyebrow">The problem</div>
+    <h2 class="pain-title">Tradies are great at their trade.<br>The admin? <em>Not so much.</em></h2>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-icon">📝</div>
+        <div class="pain-card-title">Quotes written on paper</div>
+        <div class="pain-card-desc">Or worse — remembered wrong. Clients dispute the price, you lose the job or the margin.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🧾</div>
+        <div class="pain-card-title">Invoices sent late or never</div>
+        <div class="pain-card-desc">Half your unpaid jobs are just jobs you haven't got around to invoicing yet.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">😰</div>
+        <div class="pain-card-title">GST panic every quarter</div>
+        <div class="pain-card-desc">Scrambling through bank statements at 11pm before your IRD deadline. Every single time.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">💸</div>
+        <div class="pain-card-title">Expensive NZ software</div>
+        <div class="pain-card-desc">Tradify and ServiceM8 charge $80–120/month and are built for bigger businesses, not sole traders.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="features-header">
+    <div class="section-eyebrow" style="color:var(--orange);">The solution</div>
+    <h2 class="features-title">Everything you need.<br>Nothing you don't.</h2>
+    <p class="features-sub">TradiePad is built for the way tradies actually work — on site, on their phone, in a hurry.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon-wrap">📋</div>
+      <div class="feature-title">Quick Quote Builder</div>
+      <div class="feature-desc">Add labour, materials, and parts as line items. Professional PDF sent to client in under 60 seconds.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-wrap">🧾</div>
+      <div class="feature-title">One-tap Invoicing</div>
+      <div class="feature-desc">Convert an accepted quote to invoice instantly. Chase payments with a single tap. Mark paid when done.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-wrap">📊</div>
+      <div class="feature-title">NZ GST Tracking</div>
+      <div class="feature-desc">15% GST calculated automatically on every job. Monthly and quarterly reports ready to send your accountant.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-wrap">👥</div>
+      <div class="feature-title">Client Directory</div>
+      <div class="feature-desc">All your clients, job history, and contact details in one place. Call or text straight from the app.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-wrap">📸</div>
+      <div class="feature-title">Job Notes & Photos</div>
+      <div class="feature-desc">Log notes and photos per job as you go. No more trying to remember what happened three weeks ago.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-wrap">📱</div>
+      <div class="feature-title">iPhone & Android</div>
+      <div class="feature-desc">Works on whatever phone you have. No laptop needed. Built for NZ — not some overseas app that doesn't get it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section">
+  <div class="pricing-inner">
+    <div class="section-eyebrow" style="color:var(--orange);">Pricing</div>
+    <h2 class="pricing-title">Simple, honest pricing</h2>
+    <p class="pricing-sub">No lock-in contracts, no per-user fees, no surprises. Just one price for everything.</p>
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0 <span>/ forever</span></div>
+        <div class="plan-desc">Get started with no commitment.</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> Up to 5 active jobs</li>
+          <li><span class="check">✓</span> Quote builder</li>
+          <li><span class="check">✓</span> Basic invoicing</li>
+          <li><span class="check">✓</span> Client directory</li>
+          <li><span class="cross">✗</span> GST reports</li>
+          <li><span class="cross">✗</span> PDF export</li>
+          <li><span class="cross">✗</span> Unlimited jobs</li>
+        </ul>
+        <button class="plan-btn free" onclick="document.getElementById('hero-email').focus();window.scrollTo(0,0);">Start free</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="featured-badge">Most popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">$9.90 <span>/ month NZD</span></div>
+        <div class="plan-desc">Everything you need to run your trade business properly.</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> Unlimited jobs</li>
+          <li><span class="check">✓</span> Quote + invoice PDF export</li>
+          <li><span class="check">✓</span> NZ GST reports (IRD-ready)</li>
+          <li><span class="check">✓</span> Job photos & notes log</li>
+          <li><span class="check">✓</span> Client call/text from app</li>
+          <li><span class="check">✓</span> Priority support</li>
+          <li><span class="check">✓</span> All future features</li>
+        </ul>
+        <button class="plan-btn pro" onclick="document.getElementById('hero-email').focus();window.scrollTo(0,0);">Get early access</button>
+      </div>
+    </div>
+    <p style="font-size:0.7rem;color:var(--muted);margin-top:1.5rem;">Early access users get Pro free for 3 months. No credit card needed to sign up.</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS (placeholder / beta) -->
+<section class="proof-section">
+  <div class="section-eyebrow" style="color:var(--orange);">What tradies are saying</div>
+  <h2 class="proof-title">Built with feedback from real NZ tradies</h2>
+  <div class="testimonials">
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-text">"Finally an app that doesn't charge me $100/month for features I don't use. The GST report alone saves me an hour every quarter."</div>
+      <div class="testimonial-author">
+        <div class="author-avatar" style="background:#f97316;">BT</div>
+        <div>
+          <div class="author-name">Brad T.</div>
+          <div class="author-role">Plumber · Auckland</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-text">"I used to quote on WhatsApp and hope for the best. Now I send a proper PDF on site and clients take me more seriously."</div>
+      <div class="testimonial-author">
+        <div class="author-avatar" style="background:#3b82f6;">KH</div>
+        <div>
+          <div class="author-name">Kylie H.</div>
+          <div class="author-role">Painter & Decorator · Hamilton</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-text">"Does exactly what it says. No fuss. I'm not a tech person and I figured it out in 10 minutes."</div>
+      <div class="testimonial-author">
+        <div class="author-avatar" style="background:#16a34a;">RM</div>
+        <div>
+          <div class="author-name">Rangi M.</div>
+          <div class="author-role">Electrician · Wellington</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2 class="final-title">Get back to doing<br>what you're <em>good at</em></h2>
+  <p class="final-sub">Join the waitlist. First 100 NZ tradies get Pro free for 3 months when we launch.</p>
+  <div class="final-form">
+    <input type="email" id="final-email" class="final-email" placeholder="your@email.co.nz">
+    <button class="submit-btn" onclick="handleSignup('final')">Join waitlist →</button>
+  </div>
+  <div id="final-success" class="success-msg" style="max-width:420px;margin:0.8rem auto 0;">✓ You're on the list! We'll be in touch.</div>
+  <p class="final-note">No spam. No credit card. Just a heads-up when TradiePad launches.</p>
+</section>
+
+<footer>
+  © 2025 TradiePad NZ · Made in Aotearoa 🇳🇿 · privacy@tradiepad.co.nz
+</footer>
+
+<script>
+  function handleSignup(section) {
+    const input = document.getElementById(section + '-email');
+    const success = document.getElementById(section + '-success');
+    
+    if (!input.value || !input.value.includes('@')) {
+      input.style.borderColor = '#ef4444';
+      input.focus();
+      setTimeout(() => input.style.borderColor = '', 1500);
+      return;
+    }
+    
+    // In production: POST to your email capture (Mailchimp, ConvertKit, etc.)
+    console.log('Email captured:', input.value);
+    
+    input.value = '';
+    input.style.borderColor = '#22c55e';
+    success.classList.add('show');
+    
+    setTimeout(() => {
+      input.style.borderColor = '';
+    }, 2000);
+  }
+
+  // Allow enter key on inputs
+  document.querySelectorAll('input[type="email"]').forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const section = input.id.includes('final') ? 'final' : 'hero';
+        handleSignup(section);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
